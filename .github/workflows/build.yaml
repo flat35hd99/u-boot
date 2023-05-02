@@ -1,0 +1,31 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt-get install \
+            build-essential \
+            gcc-riscv64-linux-gnu \
+            binutils-riscv64-linux-gnu \
+            flex
+      - name: Build
+        env:
+          CROSS_COMPILE: 'riscv64-linux-gnu-'
+        run: |
+          make qemu-riscv64_defconfig
+          make -j2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: u-boot-qemu-riscv64
+          path: u-boot.bin
+          retention-days: 1
